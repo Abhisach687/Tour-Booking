@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "node, express and monodb project",
   "main": "app.js",
+  "engines": {
+    "node": ">=7.6.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "nodemon server.js",

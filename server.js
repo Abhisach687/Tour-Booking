@@ -1,16 +1,6 @@
 const dotenv = require('dotenv');
-const sequelize = require('./db');
 
 dotenv.config({ path: './config.env' });
-
-sequelize
-  .authenticate()
-  .then(() => {
-    console.log('Database connection successful!');
-  })
-  .catch(error => {
-    console.error('Unable to connect to the database:', error);
-  });
 
 const app = require('./app');
 

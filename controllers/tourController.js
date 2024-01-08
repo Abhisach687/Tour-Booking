@@ -6,14 +6,13 @@ exports.getAllTours = async (req, res) => {
 
     res.status(200).json({
       status: 'success',
-      requestedAt: req.requestTime,
       results: tours.length,
       data: { tours }
     });
   } catch (err) {
-    res.status(500).json({
+    res.status(404).json({
       status: 'error',
-      message: 'Internal server error'
+      message: err
     });
   }
 };
@@ -51,7 +50,32 @@ exports.createTour = async (req, res) => {
       data: { tour: newTour }
     });
   } catch (err) {
-    console.error(err); // Log the error
+    res.status(400).json({
+      status: 'fail',
+      message: err
+    });
+  }
+};
+
+exports.updateTour = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const tour = await Tour.findByPk(id);
+
+    if (!tour) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Tour not found'
+      });
+    }
+
+    await tour.update(req.body);
+
+    res.status(200).json({
+      status: 'success',
+      data: { tour }
+    });
+  } catch (err) {
     res.status(400).json({
       status: 'fail',
       message: 'Invalid data sent!'
@@ -59,16 +83,28 @@ exports.createTour = async (req, res) => {
   }
 };
 
-exports.updateTour = (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    data: { tour: '<Updated tour here...>' }
-  });
-};
+exports.deleteTour = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const tour = await Tour.findByPk(id);
 
-exports.deleteTour = (req, res) => {
-  res.status(204).json({
-    status: 'success',
-    data: null
-  });
+    if (!tour) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Tour not found'
+      });
+    }
+
+    await tour.destroy();
+
+    res.status(204).json({
+      status: 'success',
+      data: null
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error'
+    });
+  }
 };

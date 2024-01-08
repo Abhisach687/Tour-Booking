@@ -4,7 +4,7 @@
   "description": "node, express and monodb project",
   "main": "app.js",
   "engines": {
-    "node": ">=7.6.0"
+    "node": ">=10.6.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

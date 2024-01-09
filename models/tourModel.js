@@ -1,4 +1,5 @@
 const { sequelize, Sequelize } = require('../db');
+const slugify = require('slugify');
 
 const Tour = sequelize.define(
   'Tour',
@@ -8,6 +9,9 @@ const Tour = sequelize.define(
       allowNull: false,
       unique: true,
       trim: true
+    },
+    slug: {
+      type: Sequelize.DataTypes.STRING
     },
     ratingsAverage: {
       type: Sequelize.DataTypes.FLOAT,
@@ -58,11 +62,22 @@ const Tour = sequelize.define(
     },
     startDates: {
       type: Sequelize.DataTypes.ARRAY(Sequelize.DataTypes.DATE)
+    },
+    durationWeeks: {
+      type: Sequelize.VIRTUAL,
+      get() {
+        return this.getDataValue('duration') / 7;
+      }
     }
   },
+
   {
     tableName: 'Tours'
   }
 );
+
+Tour.beforeCreate(tour => {
+  tour.slug = slugify(tour.name, { lower: true });
+});
 
 module.exports = { Tour };

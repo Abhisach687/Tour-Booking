@@ -1,4 +1,5 @@
 const { Op } = require('sequelize');
+const { QueryTypes } = require('sequelize');
 const { sequelize } = require('../db');
 const { Tour } = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
@@ -151,6 +152,40 @@ exports.getTourStats = async (req, res, next) => {
       }
     });
   } catch (err) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error'
+    });
+  }
+};
+
+exports.getMonthlyPlan = async (req, res) => {
+  try {
+    const plan = await sequelize.query(
+      `
+      SELECT EXTRACT(MONTH FROM "startDates") AS "month", COUNT("id") AS "numTourStarts", SUM("price") AS "totalRevenue", ARRAY_AGG("name") AS "tourNames"
+      FROM (
+        SELECT unnest("startDates") AS "startDates", "id", "price", "name"
+        FROM "Tours"
+      ) AS "unnestedTours"
+      WHERE EXTRACT(YEAR FROM "startDates") = :year
+      GROUP BY "month"
+      ORDER BY "month" ASC
+    `,
+      {
+        replacements: { year: req.params.year },
+        type: QueryTypes.SELECT
+      }
+    );
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        plan
+      }
+    });
+  } catch (err) {
+    console.log(err);
     res.status(500).json({
       status: 'error',
       message: 'Internal server error'

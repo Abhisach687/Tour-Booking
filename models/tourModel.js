@@ -1,5 +1,5 @@
-const { sequelize, Sequelize } = require('../db');
 const slugify = require('slugify');
+const { sequelize, Sequelize } = require('../db');
 
 const Tour = sequelize.define(
   'Tour',

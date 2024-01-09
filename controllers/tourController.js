@@ -1,5 +1,5 @@
-const { sequelize } = require('../db');
 const { Op } = require('sequelize');
+const { sequelize } = require('../db');
 const { Tour } = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
 
@@ -151,7 +151,6 @@ exports.getTourStats = async (req, res, next) => {
       }
     });
   } catch (err) {
-    console.log(err);
     res.status(500).json({
       status: 'error',
       message: 'Internal server error'

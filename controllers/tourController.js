@@ -53,6 +53,10 @@ exports.getAllTours = async (req, res) => {
     }
 
     // 3) Field limiting
+    // Get all fields from the model
+    const modelAttributes = Object.keys(Tour.tableAttributes);
+
+    // Field limiting
     let attributes;
     if (req.query.fields) {
       const fields = req.query.fields.split(',').map(field => field.trim());
@@ -66,43 +70,13 @@ exports.getAllTours = async (req, res) => {
         attributes = includedFields;
       } else {
         // If there are excluded fields, start with all fields and remove the excluded ones
-        attributes = [
-          'id',
-          'name',
-          'duration',
-          'maxGroupSize',
-          'difficulty',
-          'ratingsAverage',
-          'ratingsQuantity',
-          'price',
-          'priceDiscount',
-          'summary',
-          'description',
-          'imageCover',
-          'images',
-          'createdAt',
-          'startDates'
-        ].filter(field => !excludedFieldsLim.includes(field));
+        attributes = modelAttributes.filter(
+          field => !excludedFieldsLim.includes(field)
+        );
       }
     } else {
       // If no fields parameter is provided, select all fields
-      attributes = [
-        'id',
-        'name',
-        'duration',
-        'maxGroupSize',
-        'difficulty',
-        'ratingsAverage',
-        'ratingsQuantity',
-        'price',
-        'priceDiscount',
-        'summary',
-        'description',
-        'imageCover',
-        'images',
-        'createdAt',
-        'startDates'
-      ];
+      attributes = modelAttributes;
     }
 
     // 4) Pagination

@@ -13,6 +13,10 @@ const Tour = sequelize.define(
         len: {
           args: [10, 40],
           msg: 'Name must be between 10 and 40 characters'
+        },
+        is: {
+          args: /^[a-zA-Z\s]*$/,
+          msg: 'Tour name must only contain characters'
         }
       }
     },
@@ -21,11 +25,15 @@ const Tour = sequelize.define(
     },
     ratingsAverage: {
       type: Sequelize.DataTypes.FLOAT,
-      defaultValue: 4.5,
       validate: {
-        min: 1,
-        max: 6,
-        msg: 'Ratings average must be between 1 and 5'
+        min: {
+          args: [1],
+          msg: 'Rating must be at least 1'
+        },
+        max: {
+          args: [5],
+          msg: 'Rating must be no more than 5'
+        }
       }
     },
     ratingsQuantity: {
@@ -46,15 +54,23 @@ const Tour = sequelize.define(
     },
     difficulty: {
       type: Sequelize.DataTypes.STRING,
-      allowNull: false,
       validate: {
-        isIn: [['easy', 'medium', 'difficult']],
-        msg: 'Difficulty should only be easy, medium, or difficult'
+        isIn: {
+          args: [['easy', 'medium', 'hard']],
+          msg: 'Difficulty must be either "easy", "medium", or "hard"'
+        }
       }
     },
     priceDiscount: {
       type: Sequelize.DataTypes.FLOAT,
-      defaultValue: 0
+      defaultValue: 0,
+      validate: {
+        isLowerThanPrice(value) {
+          if (value >= this.price) {
+            throw new Error('Price discount must be lower than price');
+          }
+        }
+      }
     },
     summary: {
       type: Sequelize.DataTypes.STRING,

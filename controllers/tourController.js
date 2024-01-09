@@ -86,7 +86,7 @@ exports.updateTour = async (req, res) => {
       });
     }
 
-    await tour.update(req.body);
+    await tour.update(req.body, { validator: true }); // Set validator to true
 
     res.status(200).json({
       status: 'success',
@@ -139,7 +139,8 @@ exports.getTourStats = async (req, res, next) => {
         [sequelize.fn('MAX', sequelize.col('price')), 'maxPrice']
       ],
       where: {
-        ratingsAverage: { [Op.gte]: 4.5 }
+        ratingsAverage: { [Op.gte]: 4.5 },
+        secretTour: false
       },
       group: [sequelize.literal('UPPER(difficulty)')],
       order: [[sequelize.col('avgPrice'), 'ASC']]
@@ -164,13 +165,14 @@ exports.getMonthlyPlan = async (req, res) => {
     const plan = await sequelize.query(
       `
       SELECT EXTRACT(MONTH FROM "startDates") AS "month", COUNT("id") AS "numTourStarts", SUM("price") AS "totalRevenue", ARRAY_AGG("name") AS "tourNames"
-      FROM (
-        SELECT unnest("startDates") AS "startDates", "id", "price", "name"
-        FROM "Tours"
-      ) AS "unnestedTours"
-      WHERE EXTRACT(YEAR FROM "startDates") = :year
-      GROUP BY "month"
-      ORDER BY "month" ASC
+  FROM (
+    SELECT unnest("startDates") AS "startDates", "id", "price", "name"
+    FROM "Tours"
+    WHERE "secretTour" = false
+  ) AS "unnestedTours"
+  WHERE EXTRACT(YEAR FROM "startDates") = :year
+  GROUP BY "month"
+  ORDER BY "month" ASC
     `,
       {
         replacements: { year: req.params.year },
@@ -185,7 +187,6 @@ exports.getMonthlyPlan = async (req, res) => {
       }
     });
   } catch (err) {
-    console.log(err);
     res.status(500).json({
       status: 'error',
       message: 'Internal server error'

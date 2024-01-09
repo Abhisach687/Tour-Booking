@@ -5,17 +5,28 @@ const Tour = sequelize.define(
   'Tour',
   {
     name: {
-      type: Sequelize.DataTypes.STRING,
+      type: Sequelize.DataTypes.STRING(40),
       allowNull: false,
       unique: true,
-      trim: true
+      trim: true,
+      validate: {
+        len: {
+          args: [10, 40],
+          msg: 'Name must be between 10 and 40 characters'
+        }
+      }
     },
     slug: {
       type: Sequelize.DataTypes.STRING
     },
     ratingsAverage: {
       type: Sequelize.DataTypes.FLOAT,
-      defaultValue: 4.5
+      defaultValue: 4.5,
+      validate: {
+        min: 1,
+        max: 6,
+        msg: 'Ratings average must be between 1 and 5'
+      }
     },
     ratingsQuantity: {
       type: Sequelize.DataTypes.FLOAT,
@@ -35,7 +46,11 @@ const Tour = sequelize.define(
     },
     difficulty: {
       type: Sequelize.DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      validate: {
+        isIn: [['easy', 'medium', 'difficult']],
+        msg: 'Difficulty should only be easy, medium, or difficult'
+      }
     },
     priceDiscount: {
       type: Sequelize.DataTypes.FLOAT,
@@ -68,6 +83,10 @@ const Tour = sequelize.define(
       get() {
         return this.getDataValue('duration') / 7;
       }
+    },
+    secretTour: {
+      type: Sequelize.DataTypes.BOOLEAN,
+      defaultValue: false
     }
   },
 
@@ -78,6 +97,16 @@ const Tour = sequelize.define(
 
 Tour.beforeCreate(tour => {
   tour.slug = slugify(tour.name, { lower: true });
+});
+
+Tour.beforeFind(options => {
+  options.where = {
+    ...options.where,
+    secretTour: {
+      [Sequelize.Op.ne]: true
+    }
+  };
+  options.start = Date.now();
 });
 
 module.exports = { Tour };

@@ -1,4 +1,5 @@
-const sequelize = require('sequelize');
+const { sequelize } = require('../db');
+const { Op } = require('sequelize');
 const { Tour } = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
 
@@ -137,7 +138,7 @@ exports.getTourStats = async (req, res, next) => {
         [sequelize.fn('MAX', sequelize.col('price')), 'maxPrice']
       ],
       where: {
-        ratingsAverage: { [sequelize.Op.gte]: 4.5 }
+        ratingsAverage: { [Op.gte]: 4.5 }
       },
       group: [sequelize.literal('UPPER(difficulty)')],
       order: [[sequelize.col('avgPrice'), 'ASC']]

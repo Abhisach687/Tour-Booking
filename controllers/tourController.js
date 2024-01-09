@@ -1,3 +1,4 @@
+const sequelize = require('sequelize');
 const { Tour } = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
 
@@ -14,7 +15,7 @@ exports.getAllTours = async (req, res) => {
       .filter()
       .sort()
       .limitFields()
-      .paginate(); // Execute query
+      .paginate();
 
     const tours = await features.execute();
     // Send response
@@ -116,6 +117,40 @@ exports.deleteTour = async (req, res) => {
       data: null
     });
   } catch (err) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error'
+    });
+  }
+};
+
+exports.getTourStats = async (req, res, next) => {
+  try {
+    const stats = await Tour.findAll({
+      attributes: [
+        [sequelize.literal('UPPER(difficulty)'), 'difficulty'],
+        [sequelize.fn('COUNT', sequelize.col('id')), 'numTours'],
+        [sequelize.fn('SUM', sequelize.col('ratingsQuantity')), 'numRatings'],
+        [sequelize.fn('AVG', sequelize.col('ratingsAverage')), 'avgRating'],
+        [sequelize.fn('AVG', sequelize.col('price')), 'avgPrice'],
+        [sequelize.fn('MIN', sequelize.col('price')), 'minPrice'],
+        [sequelize.fn('MAX', sequelize.col('price')), 'maxPrice']
+      ],
+      where: {
+        ratingsAverage: { [sequelize.Op.gte]: 4.5 }
+      },
+      group: [sequelize.literal('UPPER(difficulty)')],
+      order: [[sequelize.col('avgPrice'), 'ASC']]
+    });
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        stats
+      }
+    });
+  } catch (err) {
+    console.log(err);
     res.status(500).json({
       status: 'error',
       message: 'Internal server error'

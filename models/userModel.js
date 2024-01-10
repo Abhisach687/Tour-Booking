@@ -1,3 +1,4 @@
+const bcrypt = require('bcryptjs');
 const { sequelize, Sequelize } = require('../db');
 
 const User = sequelize.define('User', {
@@ -30,7 +31,7 @@ const User = sequelize.define('User', {
   },
   passwordConfirm: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
     validate: {
       len: [8, 100],
       isSameAsPassword(value) {
@@ -49,4 +50,10 @@ const User = sequelize.define('User', {
   }
 });
 
-module.exports = { User };
+User.beforeCreate(async user => {
+  if (!user.changed('password')) return;
+  user.password = await bcrypt.hash(user.password, 12);
+  user.passwordConfirm = undefined;
+});
+
+module.exports = User;

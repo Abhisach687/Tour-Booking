@@ -15,9 +15,4 @@ sequelize
   .sync({ alter: true })
   .then(() => console.log('Database & tables created!'));
 
-process.on('unhandledRejection', err => {
-  console.log('UNHANDLED REJECTION! 💥');
-  console.log(err.name, err.message);
-});
-
 module.exports = { sequelize, Sequelize };

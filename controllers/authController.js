@@ -12,6 +12,19 @@ const signToken = id => {
   });
 };
 
+const createSendToken = (user, statusCode, req, res) => {
+  const token = signToken(user.id);
+  // Remove password from output
+  user.password = undefined;
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user
+    }
+  });
+};
+
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
@@ -20,15 +33,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm
   });
 
-  const token = signToken(newUser.id);
-
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser
-    }
-  });
+  createSendToken(newUser, 201, req, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -48,12 +53,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // 3) If everything ok, send token to client
-  const token = signToken(user.id);
-
-  res.status(200).json({
-    status: 'success',
-    token
-  });
+  createSendToken(user, 200, req, res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -185,9 +185,28 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   await user.save({ validate: false });
   // 3) Update changedPasswordAt property for the user
   // 4) Log the user in, send JWT
-  const token = signToken(user.id);
-  res.status(200).json({
-    status: 'success',
-    token
+  createSendToken(user, 200, req, res);
+});
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  // 1) Get user from the database
+  const user = await User.findByPk(req.user.id, {
+    attributes: { include: ['password'] }
   });
+  // 2) Check if the POSTed password is correct
+  if (!(await user.correctPassword(req.body.passwordCurrent))) {
+    return next(new AppError('Your current password is wrong.', 401));
+  }
+
+  // Check if password and passwordConfirm are the same
+  if (req.body.password !== req.body.passwordConfirm) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Password and password confirmation do not match'
+    });
+  }
+  // 3) If so, update the password
+  user.changePassword(req.body.password);
+  // 4) Log user in, send JWT
+  createSendToken(user, 200, req, res);
 });

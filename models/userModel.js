@@ -57,7 +57,7 @@ const User = sequelize.define(
   },
   {
     defaultScope: {
-      attributes: { exclude: ['password', 'passwordConfirm'] }
+      attributes: { exclude: ['password', 'passwordConfirm', 'active'] }
     }
   }
 );
@@ -81,6 +81,15 @@ User.beforeSave(async user => {
   if (user.changed('password') || user.isNewRecord) {
     user.passwordChangedAt = new Date(Date.now() - 1000);
   }
+});
+
+User.addHook('beforeFind', 'excludeInactive', options => {
+  options.where = {
+    ...options.where,
+    active: {
+      [Sequelize.Op.ne]: false
+    }
+  };
 });
 
 User.prototype.changePassword = async function(newPassword) {

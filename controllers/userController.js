@@ -53,6 +53,15 @@ exports.updateMe = async (req, res, next) => {
   });
 };
 
+exports.deleteMe = catchAsync(async (req, res, next) => {
+  await User.update({ active: false }, { where: { id: req.user.id } });
+
+  res.status(204).json({
+    status: 'success',
+    data: null
+  });
+});
+
 exports.createUser = (req, res) => {
   res.status(500).json({
     status: 'error',

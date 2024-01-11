@@ -77,6 +77,12 @@ User.beforeCreate(async user => {
   }
 });
 
+User.beforeSave(async user => {
+  if (user.changed('password') || user.isNewRecord) {
+    user.passwordChangedAt = new Date(Date.now() - 1000);
+  }
+});
+
 User.prototype.changePassword = async function(newPassword) {
   // Hash the new password and save it
   this.password = await bcrypt.hash(newPassword, 12);

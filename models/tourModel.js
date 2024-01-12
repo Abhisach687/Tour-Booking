@@ -1,5 +1,6 @@
 const slugify = require('slugify');
 const { sequelize, Sequelize } = require('../db');
+const User = require('./userModel');
 
 const Tour = sequelize.define(
   'Tour',
@@ -111,6 +112,11 @@ const Tour = sequelize.define(
   }
 );
 
+const TourGuide = sequelize.define('TourGuide', {}, { timestamps: true });
+
+Tour.belongsToMany(User, { through: TourGuide });
+User.belongsToMany(Tour, { through: TourGuide });
+
 Tour.beforeCreate(tour => {
   tour.slug = slugify(tour.name, { lower: true });
 });
@@ -125,4 +131,4 @@ Tour.beforeFind(options => {
   options.start = Date.now();
 });
 
-module.exports = { Tour };
+module.exports = { Tour, TourGuide };

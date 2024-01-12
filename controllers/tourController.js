@@ -1,7 +1,7 @@
 const { Op } = require('sequelize');
 const { QueryTypes } = require('sequelize');
 const { sequelize } = require('../db');
-const { Tour } = require('../models/tourModel');
+const { Tour, TourGuide } = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
 
@@ -46,12 +46,40 @@ exports.getTour = catchAsync(async (req, res, next) => {
 });
 
 exports.createTour = catchAsync(async (req, res, next) => {
-  const newTour = await Tour.create(req.body);
+  const transaction = await sequelize.transaction();
 
-  res.status(201).json({
-    status: 'success',
-    data: { tour: newTour }
-  });
+  try {
+    const newTour = await Tour.create(req.body, {
+      transaction,
+      returning: true
+    });
+
+    const guidePromises = req.body.guides.map(guideId =>
+      TourGuide.create(
+        {
+          UserId: guideId,
+          TourId: newTour.id
+        },
+        { transaction }
+      )
+    );
+
+    const newTourGuides = await Promise.all(guidePromises);
+
+    await transaction.commit();
+
+    res.status(201).json({
+      status: 'success',
+      data: { tour: newTour, tourGuides: newTourGuides }
+    });
+  } catch (error) {
+    await transaction.rollback();
+
+    res.status(400).json({
+      status: 'fail',
+      message: error.message
+    });
+  }
 });
 
 exports.updateTour = catchAsync(async (req, res, next) => {

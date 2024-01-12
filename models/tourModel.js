@@ -114,8 +114,8 @@ const Tour = sequelize.define(
 
 const TourGuide = sequelize.define('TourGuide', {}, { timestamps: true });
 
-Tour.belongsToMany(User, { through: TourGuide });
-User.belongsToMany(Tour, { through: TourGuide });
+Tour.belongsToMany(User, { through: TourGuide, as: 'guides' });
+User.belongsToMany(Tour, { through: TourGuide, as: 'tours' });
 
 Tour.beforeCreate(tour => {
   tour.slug = slugify(tour.name, { lower: true });

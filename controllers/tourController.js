@@ -2,6 +2,7 @@ const { Op } = require('sequelize');
 const { QueryTypes } = require('sequelize');
 const { sequelize } = require('../db');
 const { Tour, TourGuide } = require('../models/tourModel');
+const User = require('../models/userModel');
 const APIFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
 
@@ -30,7 +31,24 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 
 exports.getTour = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const tour = await Tour.findByPk(id);
+  const tour = await Tour.findByPk(id, {
+    include: [
+      {
+        model: User,
+        as: 'guides',
+        through: TourGuide,
+        attributes: {
+          exclude: [
+            'password',
+            'passwordChangedAt',
+            'passwordConfirm',
+            'passwordResetToken',
+            'passwordResetExpires'
+          ]
+        }
+      }
+    ]
+  });
 
   if (!tour) {
     return res.status(404).json({
@@ -49,10 +67,16 @@ exports.createTour = catchAsync(async (req, res, next) => {
   const transaction = await sequelize.transaction();
 
   try {
-    const newTour = await Tour.create(req.body, {
-      transaction,
-      returning: true
-    });
+    const newTour = await Tour.create(
+      {
+        ...req.body,
+        secretTour: false
+      },
+      {
+        transaction,
+        returning: true
+      }
+    );
 
     const guidePromises = req.body.guides.map(guideId =>
       TourGuide.create(

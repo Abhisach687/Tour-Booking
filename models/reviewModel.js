@@ -1,5 +1,5 @@
 const { sequelize, Sequelize } = require('../db');
-const Tour = require('./tourModel');
+const { Tour } = require('./tourModel');
 const User = require('./userModel');
 
 const Review = sequelize.define(
@@ -44,8 +44,11 @@ const Review = sequelize.define(
   }
 );
 
-Review.belongsTo(Tour, { foreignKey: 'tourId' });
+User.hasMany(Review, { foreignKey: 'userId' });
+Review.belongsTo(User, { foreignKey: 'userId' });
+
 Tour.hasMany(Review, { foreignKey: 'tourId' });
+Review.belongsTo(Tour, { foreignKey: 'tourId' });
 
 Review.sync();
 

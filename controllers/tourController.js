@@ -3,7 +3,6 @@ const { QueryTypes } = require('sequelize');
 const { sequelize } = require('../db');
 const { Tour, TourGuide } = require('../models/tourModel');
 const User = require('../models/userModel');
-const APIFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
 
@@ -14,21 +13,7 @@ exports.aliasTopTours = (req, res, next) => {
   next();
 };
 
-exports.getAllTours = catchAsync(async (req, res, next) => {
-  const features = new APIFeatures(Tour, req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-
-  const tours = await features.execute();
-  // Send response
-  res.status(200).json({
-    status: 'success',
-    results: tours.length,
-    data: { tours }
-  });
-});
+exports.getAllTours = factory.getAll(Tour);
 
 exports.getTour = catchAsync(async (req, res, next) => {
   const { id } = req.params;
@@ -107,45 +92,8 @@ exports.createTour = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.updateTour = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  const tour = await Tour.findByPk(id);
-
-  if (!tour) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Tour not found'
-    });
-  }
-
-  await tour.update(req.body, { validator: true }); // Set validator to true
-
-  res.status(200).json({
-    status: 'success',
-    data: { tour }
-  });
-});
-
+exports.updateTour = factory.updateOne(Tour);
 exports.deleteTour = factory.deleteOne(Tour);
-
-// exports.deleteTour = catchAsync(async (req, res, next) => {
-//   const { id } = req.params;
-//   const tour = await Tour.findByPk(id);
-
-//   if (!tour) {
-//     return res.status(404).json({
-//       status: 'fail',
-//       message: 'Tour not found'
-//     });
-//   }
-
-//   await tour.destroy();
-
-//   res.status(204).json({
-//     status: 'success',
-//     data: null
-//   });
-// });
 
 exports.getTourStats = catchAsync(async (req, res, next) => {
   const stats = await Tour.findAll({

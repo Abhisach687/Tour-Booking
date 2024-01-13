@@ -41,6 +41,14 @@ const Review = sequelize.define(
   {
     tableName: 'reviews',
     timestamps: false
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['tour', 'user']
+      }
+    ]
   }
 );
 
@@ -49,6 +57,72 @@ Review.belongsTo(User, { foreignKey: 'userId' });
 
 Tour.hasMany(Review, { foreignKey: 'tourId' });
 Review.belongsTo(Tour, { foreignKey: 'tourId' });
+
+Review.addHook('beforeFind', function(options) {
+  options.include = [
+    {
+      model: User,
+      attributes: ['name', 'photo']
+    }
+  ];
+});
+
+Review.addHook('afterCreate', async review => {
+  const { tourId } = review;
+
+  const stats = await Review.findAll({
+    attributes: [
+      [sequelize.fn('COUNT', sequelize.col('id')), 'nRating'],
+      [sequelize.fn('AVG', sequelize.col('rating')), 'avgRating']
+    ],
+    where: {
+      tourId: tourId
+    },
+    raw: true
+  });
+
+  if (stats.length > 0) {
+    await Tour.update(
+      {
+        ratingsQuantity: stats[0].nRating,
+        ratingsAverage: stats[0].avgRating
+      },
+      {
+        where: {
+          id: tourId
+        }
+      }
+    );
+  } else {
+    await Tour.update(
+      {
+        ratingsQuantity: 0,
+        ratingsAverage: 4.5
+      },
+      {
+        where: {
+          id: tourId
+        }
+      }
+    );
+  }
+});
+
+Review.beforeUpdate(async review => {
+  review.rev = await Review.findOne({ where: { id: review.id } });
+});
+
+Review.afterUpdate(async review => {
+  await review.rev.constructor.calcAverageRatings(review.rev.tourId);
+});
+
+Review.beforeDestroy(async review => {
+  review.rev = await Review.findOne({ where: { id: review.id } });
+});
+
+Review.afterDestroy(async review => {
+  await review.rev.constructor.calcAverageRatings(review.rev.tourId);
+});
 
 Review.sync();
 

@@ -34,6 +34,9 @@ const Tour = sequelize.define(
         max: {
           args: [5],
           msg: 'Rating must be no more than 5'
+        },
+        set(value) {
+          this.setDataValue('ratingsAverage', Math.round(value * 10) / 10);
         }
       }
     },

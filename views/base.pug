@@ -8,39 +8,8 @@ html(lang='en')
         link(rel='shortcut icon', type='image/png', href='img/favicon.png')
         title Tour Booking: Book your Tour Now!
     body
-        header.header
-            nav.nav.nav--tours
-                a.nav__el(href='#') All tours
-            .header__logo
-                img(src='img/logo-white.png', alt='Tour Booking logo')
-            //- nav.nav.nav--user
-            //-     a.nav__el(href='#') My bookings
-            //-     a.nav__el(href='#')
-            //-         img.nav__user-img(src='img/user.jpg', alt='User photo')
-            //-         span Abhishek
-            button.nav__el Log In
-            button.nav__el.nav__el--cta Sign Up!
-
-    //CONTENT
-
-    section.overview
-    h1=tour 
-
-    //FOOTER
-
-    footer.footer
-        .footer__logo
-            img(src='img/logo-green.png', alt='Tour Booking logo')
-        ul.footer__nav
-            li
-                a(href='#') Company
-            li
-                a(href='#') Contact us
-            li
-                a(href='#') Careers
-            li
-                a(href='#') Privacy policy
-            li
-                a(href='#') Terms
-
-        p.footer__copy &copy; by Abhishek. All rights reserved. 
+        include _header
+        block content
+        include _footer
+        script(src='js/index.js')
+    

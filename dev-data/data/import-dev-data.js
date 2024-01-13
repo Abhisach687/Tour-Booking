@@ -1,5 +1,6 @@
 const fs = require('fs');
 const { Sequelize } = require('sequelize');
+const slugify = require('slugify');
 
 require('dotenv').config({ path: './config.env' });
 const { Tour } = require('./../../models/tourModel'); // Import the Tour model
@@ -22,8 +23,15 @@ sequelize
 
 module.exports = { sequelize, Sequelize };
 
+// Import the data into the database
+
 // Read JSON file
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, 'utf-8'));
+const toursWithSlugs = tours.map(tour => ({
+  ...tour,
+  slug: slugify(tour.name, { lower: true })
+}));
+Tour.bulkCreate(toursWithSlugs);
 const users = JSON.parse(fs.readFileSync(`${__dirname}/users.json`, 'utf-8'));
 const reviews = JSON.parse(
   fs.readFileSync(`${__dirname}/reviews.json`, 'utf-8')

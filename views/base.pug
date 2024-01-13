@@ -6,10 +6,11 @@ html(lang='en')
         link(href='https://fonts.googleapis.com/css?family=Lato:300,300i,700', rel='stylesheet')
         link(rel='stylesheet', href='css/style.css')
         link(rel='shortcut icon', type='image/png', href='img/favicon.png')
-        title Tour Booking: Book your Tour Now!
+        title Tour Booking | #{title}
     body
         include _header
         block content
+            h1 this is placeholder heading
         include _footer
         script(src='js/index.js')
     

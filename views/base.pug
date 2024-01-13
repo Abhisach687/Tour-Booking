@@ -1,1 +1,46 @@
-h1 The park camper
+doctype html
+html(lang='en')
+    head
+        meta(charset='UTF-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1.0')
+        link(href='https://fonts.googleapis.com/css?family=Lato:300,300i,700', rel='stylesheet')
+        link(rel='stylesheet', href='css/style.css')
+        link(rel='shortcut icon', type='image/png', href='img/favicon.png')
+        title Tour Booking: Book your Tour Now!
+    body
+        header.header
+            nav.nav.nav--tours
+                a.nav__el(href='#') All tours
+            .header__logo
+                img(src='img/logo-white.png', alt='Tour Booking logo')
+            //- nav.nav.nav--user
+            //-     a.nav__el(href='#') My bookings
+            //-     a.nav__el(href='#')
+            //-         img.nav__user-img(src='img/user.jpg', alt='User photo')
+            //-         span Abhishek
+            button.nav__el Log In
+            button.nav__el.nav__el--cta Sign Up!
+
+    //CONTENT
+
+    section.overview
+    h1=tour 
+
+    //FOOTER
+
+    footer.footer
+        .footer__logo
+            img(src='img/logo-green.png', alt='Tour Booking logo')
+        ul.footer__nav
+            li
+                a(href='#') Company
+            li
+                a(href='#') Contact us
+            li
+                a(href='#') Careers
+            li
+                a(href='#') Privacy policy
+            li
+                a(href='#') Terms
+
+        p.footer__copy &copy; by Abhishek. All rights reserved. 

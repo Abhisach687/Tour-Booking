@@ -40,13 +40,11 @@ const Review = sequelize.define(
   },
   {
     tableName: 'reviews',
-    timestamps: false
-  },
-  {
+    timestamps: false,
     indexes: [
       {
         unique: true,
-        fields: ['tour', 'user']
+        fields: ['userId', 'tourId']
       }
     ]
   }
@@ -59,12 +57,14 @@ Tour.hasMany(Review, { foreignKey: 'tourId' });
 Review.belongsTo(Tour, { foreignKey: 'tourId' });
 
 Review.addHook('beforeFind', function(options) {
-  options.include = [
-    {
-      model: User,
-      attributes: ['name', 'photo']
-    }
-  ];
+  if (options.includeUser) {
+    options.include = [
+      {
+        model: User,
+        attributes: ['name', 'photo']
+      }
+    ];
+  }
 });
 
 Review.addHook('afterCreate', async review => {
@@ -72,8 +72,8 @@ Review.addHook('afterCreate', async review => {
 
   const stats = await Review.findAll({
     attributes: [
-      [sequelize.fn('COUNT', sequelize.col('id')), 'nRating'],
-      [sequelize.fn('AVG', sequelize.col('rating')), 'avgRating']
+      [sequelize.fn('COUNT', sequelize.col('Review.id')), 'nRating'],
+      [sequelize.fn('AVG', sequelize.col('Review.rating')), 'avgRating']
     ],
     where: {
       tourId: tourId

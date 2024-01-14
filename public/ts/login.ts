@@ -1,7 +1,19 @@
 /* eslint-disable */
 
-const login = (email: string, password: string): void => {
-  alert(email, password);
+const login = async (email: string, password: string): Promise<void> => {
+  try {
+    const res = await axios({
+      method: 'POST',
+      url: 'http://127.0.0.1:3000/api/v1/users/login',
+      data: {
+        email,
+        password
+      }
+    });
+    console.log(res);
+  } catch (err) {
+    console.log(err.response.data.message);
+  }
 };
 
 document.querySelector('.form')!.addEventListener('submit', (e: Event) => {

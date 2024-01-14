@@ -5,6 +5,8 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
@@ -22,9 +24,33 @@ app.set('views', path.join(__dirname, 'views'));
 // Serving static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Set security HTTP headers
-app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: [
+        "'self'",
+        'data:',
+        'https://www.google-analytics.com',
+        'http://127.0.0.1:3000',
+        'https://cdnjs.cloudflare.com'
+      ],
+      scriptSrc: [
+        "'self'",
+        "'unsafe-inline'",
+        'https://www.google-analytics.com',
+        'https://cdnjs.cloudflare.com'
+      ]
+      // other directives...
+    }
+  })
+);
 
+app.use(
+  cors({
+    origin: 'http://localhost:3000', // replace with your client's origin
+    credentials: true
+  })
+);
 // Development logging
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -41,6 +67,7 @@ app.use('/api', limiter);
 
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser());
 
 // Data sanitization against XSS
 // Clean user input from malicious HTML code
@@ -64,6 +91,7 @@ app.use(
 app.use((req, res, next) => {
   // middleware
   req.requestTime = new Date().toISOString();
+  console.log(req.cookies);
   next();
 });
 

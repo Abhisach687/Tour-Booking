@@ -57,14 +57,12 @@ Tour.hasMany(Review, { foreignKey: 'tourId' });
 Review.belongsTo(Tour, { foreignKey: 'tourId' });
 
 Review.addHook('beforeFind', function(options) {
-  if (options.includeUser) {
-    options.include = [
-      {
-        model: User,
-        attributes: ['name', 'photo']
-      }
-    ];
-  }
+  options.include = [
+    {
+      model: User,
+      attributes: ['name', 'photo']
+    }
+  ];
 });
 
 Review.addHook('afterCreate', async review => {

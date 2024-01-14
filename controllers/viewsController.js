@@ -14,7 +14,7 @@ exports.getOverview = catchAsync(async (req, res) => {
   });
 });
 
-exports.getTour = async (req, res) => {
+exports.getTour = catchAsync(async (req, res, next) => {
   const tour = await Tour.findOne({
     where: { slug: req.params.slug },
     include: [
@@ -26,10 +26,14 @@ exports.getTour = async (req, res) => {
     ]
   });
 
-  console.log(tour); // Add this line
-
   res.status(200).render('tour', {
     title: 'The Forest Hiker Tour',
     tour
+  });
+});
+
+exports.getLoginForm = (req, res) => {
+  res.status(200).render('login', {
+    title: 'Log into your account'
   });
 };

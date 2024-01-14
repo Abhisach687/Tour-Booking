@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 export const hideAlert = (): void => {
     const el = document.querySelector('.alert');
     if (el) el.parentElement?.removeChild(el);

@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "outDir": "./public/js", // specify the output directory for the compiled JavaScript files
+    "rootDir": "./public/ts", // specify the root directory of your TypeScript files
+    "allowJs": true, // allow JavaScript files to be compiled
+    "target": "ES2022" // specify ECMAScript target version
+  },
+  "include": ["public/ts/**/*.ts"],
+  "exclude": ["node_modules"]
+}

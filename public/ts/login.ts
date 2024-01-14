@@ -10,9 +10,16 @@ const login = async (email: string, password: string): Promise<void> => {
         password
       }
     });
+
+    if (res.data.status === 'success') {
+      alert('Logged in successfully!');
+      window.setTimeout(() => {
+        location.assign('/');
+      }, 1500);
+    }
     console.log(res);
   } catch (err) {
-    console.log(err.response.data.message);
+    alert(err.response.data.message);
   }
 };
 

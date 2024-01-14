@@ -1,5 +1,6 @@
 const { Tour } = require('./../models/tourModel');
 const catchAsync = require('./../utils/catchAsync');
+const AppError = require('./../utils/appError');
 const Review = require('./../models/reviewModel');
 const User = require('./../models/userModel');
 
@@ -25,6 +26,10 @@ exports.getTour = catchAsync(async (req, res, next) => {
       { model: User, as: 'guides' }
     ]
   });
+
+  if (!tour) {
+    return next(new AppError('There is no tour with that name.', 404));
+  }
 
   res.status(200).render('tour', {
     title: 'The Forest Hiker Tour',

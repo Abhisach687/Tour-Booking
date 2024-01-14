@@ -1,14 +1,23 @@
 const AppError = require('../utils/appError');
 
-const sendErrorDev = (err, res) => {
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-    stack: err.stack // Error stack trace
+const sendErrorDev = (err, req, res) => {
+  // API
+  if (req.originalUrl.startsWith('/api')) {
+    return res.status(err.statusCode).json({
+      status: err.status,
+      message: err.message,
+      stack: err.stack // Error stack trace
+    });
+  }
+  // RENDERED WEBSITE
+  console.error('ERROR 💥', err);
+  return res.status(err.statusCode).render('error', {
+    title: 'Something went wrong!',
+    msg: err.message
   });
 };
 
-const sendErrorProd = (err, res) => {
+const sendErrorProd = (err, req, res) => {
   // Operational, trusted error: send message to client
   if (err.isOperational) {
     res.status(err.statusCode).json({
@@ -41,7 +50,7 @@ module.exports = (err, req, res, next) => {
 
   if (process.env.NODE_ENV === 'development') {
     // This is the default value
-    sendErrorDev(err, res);
+    sendErrorDev(err, req, res);
   } else if (process.env.NODE_ENV === 'production') {
     if (err.name === 'SequelizeValidationError') {
       err.message = err.errors.map(el => el.message).join('. ');
@@ -55,6 +64,6 @@ module.exports = (err, req, res, next) => {
     if (err.name === 'TokenExpiredError') {
       err = handleJwtExpiredError();
     }
-    sendErrorProd(err, res);
+    sendErrorProd(err, req, res);
   }
 };

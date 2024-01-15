@@ -1,24 +1,26 @@
 /* eslint-disable */
-
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { showAlert } from './alerts';
 
-export const updateData = async (
-  name: string,
-  email: string
+// type is either 'password' or 'data'
+export const updateSettings = async (
+  data: any,
+  type: string
 ): Promise<void> => {
   try {
-    const res = await axios({
+    const url =
+      type === 'password'
+        ? '/api/v1/users/updateMyPassword'
+        : '/api/v1/users/updateMe';
+
+    const res: AxiosResponse = await axios({
       method: 'PATCH',
-      url: 'http://127.0.0.1:3000/api/v1/users/updateMe',
-      data: {
-        name,
-        email
-      }
+      url,
+      data
     });
 
     if (res.data.status === 'success') {
-      showAlert('success', 'Data updated successfully!');
+      showAlert('success', `${type.toUpperCase()} updated successfully!`);
     }
   } catch (err) {
     showAlert('error', err.response.data.message);

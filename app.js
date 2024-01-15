@@ -39,8 +39,17 @@ app.use(
         "'self'",
         "'unsafe-inline'",
         'https://www.google-analytics.com',
-        'https://cdnjs.cloudflare.com'
-      ]
+        'https://cdnjs.cloudflare.com',
+        'https://js.stripe.com/v3/'
+      ],
+      scriptSrcElem: [
+        "'self'",
+        "'unsafe-inline'",
+        'https://www.google-analytics.com',
+        'https://cdnjs.cloudflare.com',
+        'https://js.stripe.com/v3/'
+      ],
+      frameSrc: ["'self'", 'https://js.stripe.com']
       // other directives...
     }
   })

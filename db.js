@@ -1,3 +1,4 @@
+// db.js
 const { Sequelize } = require('sequelize');
 require('dotenv').config({ path: './config.env' });
 
@@ -10,9 +11,5 @@ const sequelize = new Sequelize(
     dialect: 'postgres'
   }
 );
-
-sequelize
-  .sync({ alter: true })
-  .then(() => console.log('Database & tables created!'));
 
 module.exports = { sequelize, Sequelize };

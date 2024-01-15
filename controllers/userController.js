@@ -16,7 +16,7 @@ exports.getMe = (req, res, next) => {
   next();
 };
 
-exports.updateMe = async (req, res, next) => {
+exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Create error if user POSTs password data
   if (req.body.password || req.body.passwordConfirm) {
     return next(
@@ -44,7 +44,7 @@ exports.updateMe = async (req, res, next) => {
       user: updatedUser
     }
   });
-};
+});
 
 exports.deleteMe = catchAsync(async (req, res, next) => {
   await User.update({ active: false }, { where: { id: req.user.id } });
